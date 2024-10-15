@@ -1,26 +1,56 @@
 {
     "name": "integration-ts-example",
     "type": "module",
-    "devDependencies": {
-        "@types/debug": "^4.1.12",
-        "@types/node": "^22.7.5",
-        "@types/ws": "^8.5.12",
-        "eslint": "^9.12.0",
-        "prettier": "^3.3.3",
-        "typescript": "^5.6.3"
-    },
     "version": "1.0.0",
-    "description": "",
+    "description": "This example demonstrates how to use the Integration Node.js library.",
     "main": "light.js",
     "dependencies": {
         "integration-api": "ZsakaiBalint/integration-node-library#iss-27"
     },
+    "devDependencies": {
+		"@ava/typescript": "^5.0.0",
+		"@types/debug": "^4.1.12",
+		"@types/node": "^22.5.5",
+		"@types/ws": "^8.5.12",
+		"@typescript-eslint/eslint-plugin": "^8.8.1",
+		"@typescript-eslint/parser": "^8.8.1",
+		"ava": "^6.1.3",
+		"copyfiles": "^2.4.1",
+		"eslint": "^8.57.1",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-config-semistandard": "^17.0.0",
+		"eslint-plugin-prettier": "^5.2.1",
+		"eslint-plugin-promise": "^6.6.0",
+		"prettier": "^3.3.3",
+		"ts-node": "^10.9.2",
+		"typescript": "5.5.x"
+    },
     "scripts": {
         "format": "prettier --write \"./src/**/*.ts\"",
-        "lint": "prettier --write \"./src/**/*.ts\" && eslint \"./src/**/*.ts\" --fix",
-        "build": "tsc"
+        "lint": "prettier --check \"./src/**/*.ts\" && eslint \"./src/**/*.ts\" --fix",
+        "test": "npm run build && ava dist/test/**/*.js",
+        "build": "tsc && copyfiles \"./src/**/*.json\" dist/"
     },
-    "keywords": [],
-    "author": "",
-    "license": "ISC"
+    "repository": {
+		"type": "git",
+		"url": "git+https://github.com/unfoldedcircle/integration-node-library.git"
+	},
+	"keywords": [
+		"uc",
+		"unfoldedcircle",
+		"remotetwo",
+		"smartremote",
+		"api",
+		"integration"
+	],
+	"author": "Unfolded Circle",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/unfoldedcircle/integration-node-library/issues"
+	},
+	"homepage": "https://unfoldedcircle.com",
+	"private": true,
+	"engines": {
+		"node": ">=16.18.0"
+	}
 }
