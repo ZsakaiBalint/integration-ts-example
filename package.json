@@ -5,7 +5,7 @@
     "description": "This example demonstrates how to use the Integration Node.js library.",
     "main": "light.js",
     "dependencies": {
-        "integration-api": "ZsakaiBalint/integration-node-library#iss-27"
+        
     },
     "devDependencies": {
 		"@ava/typescript": "^5.0.0",

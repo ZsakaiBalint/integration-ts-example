@@ -1,33 +1,15 @@
-// use package in production
-// const uc = require("uc-integration-api");
-//uc.init("light-driver.json");
+import uc from 'uc-integration-api';
 
-import uc from "integration-api";
-import Button from "integration-api/dist/lib/entities/button.js";
-import Light from "integration-api/dist/lib/entities/light.js";
-import MediaPlayer, {
-  ATTRIBUTES,
-  STATES,
-} from "integration-api/dist/lib/entities/media_player.js";
-import {
-  FEATURES as MEDIAPLAYER_FEATURES,
-  ATTRIBUTES as MEDIAPLAYER_ATTRIBUTES,
-  STATES as MEDIAPLAYER_STATES,
-  DEVICECLASSES as MEDIAPLAYER_DEVICECLASSES,
-} from "integration-api/dist/lib/entities/media_player.js";
-import { COMMANDS as BUTTONCOMMANDS } from "integration-api/dist/lib/entities/button.js";
-import { STATUS_CODES } from "http";
-import {
-  DEVICE_STATES,
-  EVENTS as API_EVENTS,
-} from "integration-api/dist/lib/api_definitions.js";
-import { CommandHandler } from "integration-api/dist/lib/entities/entity.js";
-import {
-  COMMANDS as LIGHT_COMMANDS,
-  STATES as LIGHT_STATES,
-  ATTRIBUTES as LIGHT_ATTRIBUTES,
-  FEATURES as LIGHT_FEATURES,
-} from "integration-api/dist/lib/entities/light.js";
+
+
+const api = uc.IntegrationAPI;
+const deviceStates = uc.DEVICE_STATES;
+const setupDriver = uc.setup.SetupDriver;
+
+const button = uc.Entities;
+
+
+
 
 uc.init("light-driver.json");
 
