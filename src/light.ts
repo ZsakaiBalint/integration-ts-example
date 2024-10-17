@@ -1,27 +1,16 @@
 import uc from 'uc-integration-api';
 
-
-
-const api = uc.IntegrationAPI;
-const deviceStates = uc.DEVICE_STATES;
-const setupDriver = uc.setup.SetupDriver;
-
-const button = uc.Entities;
-
-
-
-
 uc.init("light-driver.json");
 
-uc.on(API_EVENTS.CONNECT, async () => {
-  await uc.setDeviceState(DEVICE_STATES.CONNECTED);
+uc.on(uc.EVENTS.CONNECT, async () => {
+  await uc.setDeviceState(uc.DEVICE_STATES.CONNECTED);
 });
 
-uc.on(API_EVENTS.DISCONNECT, async () => {
-  await uc.setDeviceState(DEVICE_STATES.DISCONNECTED);
+uc.on(uc.EVENTS.DISCONNECT, async () => {
+  await uc.setDeviceState(uc.DEVICE_STATES.DISCONNECTED);
 });
 
-uc.on(API_EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
+uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
   // the integration will configure entities and subscribe for entity update events
   // the UC library automatically adds the subscribed entities
   // from available to configured
