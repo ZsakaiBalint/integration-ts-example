@@ -3,7 +3,7 @@
     "type": "module",
     "version": "1.0.0",
     "description": "This example demonstrates how to use the Integration Node.js library.",
-    "main": "light.js",
+    "main": "dist/light.js",
     "dependencies": {
         
     },
@@ -33,7 +33,7 @@
     },
     "repository": {
 		"type": "git",
-		"url": "git+https://github.com/unfoldedcircle/integration-node-library.git"
+		"url": "git+https://github.com/unfoldedcircle/integration-ts-example.git"
 	},
 	"keywords": [
 		"uc",
@@ -46,11 +46,11 @@
 	"author": "Unfolded Circle",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/unfoldedcircle/integration-node-library/issues"
+		"url": "https://github.com/unfoldedcircle/integration-ts-example/issues"
 	},
 	"homepage": "https://unfoldedcircle.com",
 	"private": true,
 	"engines": {
-		"node": ">=16.18.0"
+		"node": ">=20.16.0"
 	}
 }
