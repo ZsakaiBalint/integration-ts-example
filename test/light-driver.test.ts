@@ -1,5 +1,5 @@
 import test from "ava";
-import uc from "integration-api";
+import uc from "uc-integration-api";
 
 
 

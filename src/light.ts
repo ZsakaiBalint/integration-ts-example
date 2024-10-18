@@ -1,4 +1,4 @@
-import uc from 'uc-integration-api';
+import uc, { CommandHandler } from "uc-integration-api";
 
 uc.init("light-driver.json");
 
@@ -20,7 +20,7 @@ uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
   });
 });
 
-uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds: string[]) => {
+uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds: string[]) => {
   // when the integration unsubscribed from certain entity updates,
   // the UC library automatically remove the unsubscribed entities
   // from configured
@@ -46,16 +46,16 @@ const sharedCmdHandler: CommandHandler = async function (
   params,
 ): Promise<string> {
   // let's add some hacky action to the button!
-  if (entity.id === "my_button" && cmdId === BUTTONCOMMANDS.PUSH) {
+  if (entity.id === "my_button" && cmdId === uc.entities.Button.COMMANDS.PUSH) {
     console.log("Got %s push request: toggling light", entity.id);
     // trigger a light command
     const lightEntity = uc
       .getConfiguredEntities()
       .getEntity("my_unique_light_id");
     if (lightEntity) {
-      await lightCmdHandler(lightEntity, LIGHT_COMMANDS.TOGGLE);
+      await lightCmdHandler(lightEntity, uc.entities.Light.COMMANDS.TOGGLE);
     }
-    return STATUS_CODES.OK ?? "OK";
+    return uc.api_definitions.STATUS_CODES.OK.toString();
   }
 
   if (entity.id === "test_mediaplayer") {
@@ -66,12 +66,12 @@ const sharedCmdHandler: CommandHandler = async function (
       params || "",
     );
 
-    return STATUS_CODES.OK ?? "OK";
+    return uc.api_definitions.STATUS_CODES.OK.toString();
   }
 
   console.log("Got %s command request: %s", entity.id, cmdId);
 
-  return STATUS_CODES.OK ?? "OK";
+  return uc.api_definitions.STATUS_CODES.OK.toString();
 };
 
 /**
@@ -94,66 +94,66 @@ const lightCmdHandler: CommandHandler = async function (
   // in this example we just update the entity, but in reality, you'd turn on the light with your integration
   // and handle the events separately for updating the configured entities
   switch (cmdId) {
-    case LIGHT_COMMANDS.TOGGLE:
-      if (entity.attributes.state === LIGHT_STATES.OFF) {
+    case uc.entities.Light.COMMANDS.TOGGLE:
+      if (entity.attributes.state === uc.entities.Light.STATES.OFF) {
         uc.getConfiguredEntities().updateEntityAttributes(
           entity.id,
           new Map([
-            [LIGHT_ATTRIBUTES.STATE, LIGHT_STATES.ON],
+            [uc.entities.Light.ATTRIBUTES.STATE, uc.entities.Light.STATES.ON],
             [
-              LIGHT_ATTRIBUTES.BRIGHTNESS,
+              uc.entities.Light.ATTRIBUTES.BRIGHTNESS,
               params && params.brightness ? params.brightness : 255,
             ],
           ]),
         );
-      } else if (entity.attributes.state === LIGHT_STATES.ON) {
+      } else if (entity.attributes.state === uc.entities.Light.STATES.ON) {
         uc.getConfiguredEntities().updateEntityAttributes(
           entity.id,
           new Map([
-            [LIGHT_ATTRIBUTES.STATE, LIGHT_STATES.OFF],
+            [uc.entities.Light.ATTRIBUTES.STATE, uc.entities.Light.STATES.OFF],
             [
-              LIGHT_ATTRIBUTES.BRIGHTNESS,
+              uc.entities.Light.ATTRIBUTES.BRIGHTNESS,
               params && params.brightness ? params.brightness : 0,
             ],
           ]),
         );
       }
       break;
-    case LIGHT_COMMANDS.ON:
+    case uc.entities.Light.COMMANDS.ON:
       // params is optional! Use a default if not provided.
       // A real lamp might store the last brightness value, otherwise the integration could also keep track of the last value.
       uc.getConfiguredEntities().updateEntityAttributes(
         entity.id,
         new Map([
-          [LIGHT_ATTRIBUTES.STATE, LIGHT_STATES.ON],
+          [uc.entities.Light.ATTRIBUTES.STATE, uc.entities.Light.STATES.ON],
           [
-            LIGHT_ATTRIBUTES.BRIGHTNESS,
+            uc.entities.Light.ATTRIBUTES.BRIGHTNESS,
             params && params.brightness ? params.brightness : 127,
           ],
         ]),
       );
       uc.getConfiguredEntities().updateEntityAttributes(
         "test_mediaplayer",
-        new Map([[MEDIAPLAYER_ATTRIBUTES.VOLUME, 24]]),
+        new Map([[uc.entities.MediaPlayer.ATTRIBUTES.VOLUME, 24]]),
       );
       break;
-    case LIGHT_COMMANDS.OFF:
+    case uc.entities.Light.COMMANDS.OFF:
       uc.getConfiguredEntities().updateEntityAttributes(
         entity.id,
         new Map([
-          [LIGHT_ATTRIBUTES.STATE, LIGHT_STATES.OFF],
+          [uc.entities.Light.ATTRIBUTES.STATE, uc.entities.Light.STATES.OFF],
           [
-            LIGHT_ATTRIBUTES.BRIGHTNESS,
+            uc.entities.Light.ATTRIBUTES.BRIGHTNESS,
             params && params.brightness ? params.brightness : 0,
           ],
         ]),
       );
       break;
     default:
-      return STATUS_CODES.NOT_IMPLEMENTED ?? "NOT_IMPLEMENTED";
+      return uc.api_definitions.STATUS_CODES.NOT_IMPLEMENTED.toString();
   }
 
-  return STATUS_CODES.OK ?? "OK";
+  return uc.api_definitions.STATUS_CODES.OK.toString();
 };
 
 // create a light entity
@@ -164,15 +164,13 @@ const name = new Map([
   ["en", "My favorite light"],
 ]);
 
-const attributes: Partial<
-  Record<LIGHT_ATTRIBUTES, LIGHT_STATES | number | string>
-> = {
-  [LIGHT_ATTRIBUTES.STATE]: LIGHT_STATES.OFF,
-  [LIGHT_ATTRIBUTES.BRIGHTNESS]: "0",
+const attributes: Partial<Record<string, string>> = {
+  [uc.entities.Light.ATTRIBUTES.STATE]: uc.entities.Light.STATES.OFF,
+  [uc.entities.Light.ATTRIBUTES.BRIGHTNESS]: "0",
 };
 
-const lightEntity = new Light("my_unique_light_id", name, {
-  features: [LIGHT_FEATURES.ON_OFF, LIGHT_FEATURES.DIM],
+const lightEntity = new uc.entities.Light.Light("my_unique_light_id", name, {
+  features: [uc.entities.Light.FEATURES.ON_OFF, uc.entities.Light.FEATURES.DIM],
   attributes,
 });
 lightEntity.setCmdHandler(lightCmdHandler ?? null);
@@ -181,17 +179,19 @@ lightEntity.setCmdHandler(lightCmdHandler ?? null);
 // this is important, so the core knows what entities are available
 uc.getAvailableEntities().addEntity(lightEntity);
 
-const buttonEntity = new Button("my_button", "Push the button!", {
-  area: "test lab",
-  cmdHandler: sharedCmdHandler,
-});
+const buttonEntity = new uc.entities.Button.Button(
+  "my_button",
+  "Push the button!",
+  {
+    area: "test lab",
+    cmdHandler: sharedCmdHandler,
+  },
+);
 uc.getAvailableEntities().addEntity(buttonEntity);
 
-const defaultAttributes: Partial<
-  Record<ATTRIBUTES, STATES | number | string | string[]>
-> = {
-  [MEDIAPLAYER_ATTRIBUTES.STATE]: MEDIAPLAYER_STATES.ON,
-  [MEDIAPLAYER_ATTRIBUTES.SOURCE_LIST]: [
+const defaultAttributes: Partial<Record<string, string | string[]>> = {
+  [uc.entities.MediaPlayer.ATTRIBUTES.STATE]: uc.entities.MediaPlayer.STATES.ON,
+  [uc.entities.MediaPlayer.ATTRIBUTES.SOURCE_LIST]: [
     "Radio",
     "Streaming",
     "Favorite 1",
@@ -201,22 +201,22 @@ const defaultAttributes: Partial<
 };
 
 // add a media-player entity
-const mediaPlayerEntity = new MediaPlayer(
+const mediaPlayerEntity = new uc.entities.MediaPlayer.MediaPlayer(
   "test_mediaplayer",
   new Map([["en", "Foobar MediaPlayer"]]),
   {
     features: [
-      MEDIAPLAYER_FEATURES.ON_OFF,
-      MEDIAPLAYER_FEATURES.DPAD,
-      MEDIAPLAYER_FEATURES.HOME,
-      MEDIAPLAYER_FEATURES.MENU,
-      MEDIAPLAYER_FEATURES.CHANNEL_SWITCHER,
-      MEDIAPLAYER_FEATURES.SELECT_SOURCE,
-      MEDIAPLAYER_FEATURES.COLOR_BUTTONS,
-      MEDIAPLAYER_FEATURES.PLAY_PAUSE,
+      uc.entities.MediaPlayer.FEATURES.ON_OFF,
+      uc.entities.MediaPlayer.FEATURES.DPAD,
+      uc.entities.MediaPlayer.FEATURES.HOME,
+      uc.entities.MediaPlayer.FEATURES.MENU,
+      uc.entities.MediaPlayer.FEATURES.CHANNEL_SWITCHER,
+      uc.entities.MediaPlayer.FEATURES.SELECT_SOURCE,
+      uc.entities.MediaPlayer.FEATURES.COLOR_BUTTONS,
+      uc.entities.MediaPlayer.FEATURES.PLAY_PAUSE,
     ],
     attributes: defaultAttributes,
-    deviceClass: MEDIAPLAYER_DEVICECLASSES.STREAMING_BOX,
+    deviceClass: uc.entities.MediaPlayer.DEVICECLASSES.STREAMING_BOX,
   },
 );
 mediaPlayerEntity.setCmdHandler(sharedCmdHandler);
