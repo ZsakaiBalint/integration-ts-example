@@ -40,18 +40,12 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds: string[]) => {
  * @param {Object<string, *>} params optional command parameters
  * @return {Promise<string>} status of the command
  */
-const sharedCmdHandler: CommandHandler = async function (
-  entity,
-  cmdId,
-  params,
-): Promise<string> {
+const sharedCmdHandler: CommandHandler = async function (entity, cmdId, params): Promise<string> {
   // let's add some hacky action to the button!
   if (entity.id === "my_button" && cmdId === uc.entities.Button.COMMANDS.PUSH) {
     console.log("Got %s push request: toggling light", entity.id);
     // trigger a light command
-    const lightEntity = uc
-      .getConfiguredEntities()
-      .getEntity("my_unique_light_id");
+    const lightEntity = uc.getConfiguredEntities().getEntity("my_unique_light_id");
     if (lightEntity) {
       await lightCmdHandler(lightEntity, uc.entities.Light.COMMANDS.TOGGLE);
     }
@@ -59,12 +53,7 @@ const sharedCmdHandler: CommandHandler = async function (
   }
 
   if (entity.id === "test_mediaplayer") {
-    console.log(
-      "Got %s media-player command request: %s",
-      entity.id,
-      cmdId,
-      params || "",
-    );
+    console.log("Got %s media-player command request: %s", entity.id, cmdId, params || "");
 
     return uc.api_definitions.STATUS_CODES.OK.toString();
   }
@@ -84,11 +73,7 @@ const sharedCmdHandler: CommandHandler = async function (
  * @param {?Object<string, *>} params optional command parameters
  * @return {Promise<string>} status of the command
  */
-const lightCmdHandler: CommandHandler = async function (
-  entity,
-  cmdId,
-  params,
-): Promise<string> {
+const lightCmdHandler: CommandHandler = async function (entity, cmdId, params): Promise<string> {
   console.log("Got %s command request: %s", entity.id, cmdId);
 
   // in this example we just update the entity, but in reality, you'd turn on the light with your integration
@@ -100,22 +85,16 @@ const lightCmdHandler: CommandHandler = async function (
           entity.id,
           new Map([
             [uc.entities.Light.ATTRIBUTES.STATE, uc.entities.Light.STATES.ON],
-            [
-              uc.entities.Light.ATTRIBUTES.BRIGHTNESS,
-              params && params.brightness ? params.brightness : 255,
-            ],
-          ]),
+            [uc.entities.Light.ATTRIBUTES.BRIGHTNESS, params && params.brightness ? params.brightness : 255]
+          ])
         );
       } else if (entity.attributes.state === uc.entities.Light.STATES.ON) {
         uc.getConfiguredEntities().updateEntityAttributes(
           entity.id,
           new Map([
             [uc.entities.Light.ATTRIBUTES.STATE, uc.entities.Light.STATES.OFF],
-            [
-              uc.entities.Light.ATTRIBUTES.BRIGHTNESS,
-              params && params.brightness ? params.brightness : 0,
-            ],
-          ]),
+            [uc.entities.Light.ATTRIBUTES.BRIGHTNESS, params && params.brightness ? params.brightness : 0]
+          ])
         );
       }
       break;
@@ -126,15 +105,12 @@ const lightCmdHandler: CommandHandler = async function (
         entity.id,
         new Map([
           [uc.entities.Light.ATTRIBUTES.STATE, uc.entities.Light.STATES.ON],
-          [
-            uc.entities.Light.ATTRIBUTES.BRIGHTNESS,
-            params && params.brightness ? params.brightness : 127,
-          ],
-        ]),
+          [uc.entities.Light.ATTRIBUTES.BRIGHTNESS, params && params.brightness ? params.brightness : 127]
+        ])
       );
       uc.getConfiguredEntities().updateEntityAttributes(
         "test_mediaplayer",
-        new Map([[uc.entities.MediaPlayer.ATTRIBUTES.VOLUME, 24]]),
+        new Map([[uc.entities.MediaPlayer.ATTRIBUTES.VOLUME, 24]])
       );
       break;
     case uc.entities.Light.COMMANDS.OFF:
@@ -142,11 +118,8 @@ const lightCmdHandler: CommandHandler = async function (
         entity.id,
         new Map([
           [uc.entities.Light.ATTRIBUTES.STATE, uc.entities.Light.STATES.OFF],
-          [
-            uc.entities.Light.ATTRIBUTES.BRIGHTNESS,
-            params && params.brightness ? params.brightness : 0,
-          ],
-        ]),
+          [uc.entities.Light.ATTRIBUTES.BRIGHTNESS, params && params.brightness ? params.brightness : 0]
+        ])
       );
       break;
     default:
@@ -161,17 +134,17 @@ const lightCmdHandler: CommandHandler = async function (
 // The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
 const name = new Map([
   ["de", "Mein Lieblingslicht"],
-  ["en", "My favorite light"],
+  ["en", "My favorite light"]
 ]);
 
 const attributes: Partial<Record<string, string>> = {
   [uc.entities.Light.ATTRIBUTES.STATE]: uc.entities.Light.STATES.OFF,
-  [uc.entities.Light.ATTRIBUTES.BRIGHTNESS]: "0",
+  [uc.entities.Light.ATTRIBUTES.BRIGHTNESS]: "0"
 };
 
 const lightEntity = new uc.entities.Light.Light("my_unique_light_id", name, {
   features: [uc.entities.Light.FEATURES.ON_OFF, uc.entities.Light.FEATURES.DIM],
-  attributes,
+  attributes
 });
 lightEntity.setCmdHandler(lightCmdHandler ?? null);
 
@@ -179,25 +152,15 @@ lightEntity.setCmdHandler(lightCmdHandler ?? null);
 // this is important, so the core knows what entities are available
 uc.getAvailableEntities().addEntity(lightEntity);
 
-const buttonEntity = new uc.entities.Button.Button(
-  "my_button",
-  "Push the button!",
-  {
-    area: "test lab",
-    cmdHandler: sharedCmdHandler,
-  },
-);
+const buttonEntity = new uc.entities.Button.Button("my_button", "Push the button!", {
+  area: "test lab",
+  cmdHandler: sharedCmdHandler
+});
 uc.getAvailableEntities().addEntity(buttonEntity);
 
 const defaultAttributes: Partial<Record<string, string | string[]>> = {
   [uc.entities.MediaPlayer.ATTRIBUTES.STATE]: uc.entities.MediaPlayer.STATES.ON,
-  [uc.entities.MediaPlayer.ATTRIBUTES.SOURCE_LIST]: [
-    "Radio",
-    "Streaming",
-    "Favorite 1",
-    "Favorite 2",
-    "Favorite 3",
-  ],
+  [uc.entities.MediaPlayer.ATTRIBUTES.SOURCE_LIST]: ["Radio", "Streaming", "Favorite 1", "Favorite 2", "Favorite 3"]
 };
 
 // add a media-player entity
@@ -213,11 +176,11 @@ const mediaPlayerEntity = new uc.entities.MediaPlayer.MediaPlayer(
       uc.entities.MediaPlayer.FEATURES.CHANNEL_SWITCHER,
       uc.entities.MediaPlayer.FEATURES.SELECT_SOURCE,
       uc.entities.MediaPlayer.FEATURES.COLOR_BUTTONS,
-      uc.entities.MediaPlayer.FEATURES.PLAY_PAUSE,
+      uc.entities.MediaPlayer.FEATURES.PLAY_PAUSE
     ],
     attributes: defaultAttributes,
-    deviceClass: uc.entities.MediaPlayer.DEVICECLASSES.STREAMING_BOX,
-  },
+    deviceClass: uc.entities.MediaPlayer.DEVICECLASSES.STREAMING_BOX
+  }
 );
 mediaPlayerEntity.setCmdHandler(sharedCmdHandler);
 uc.getAvailableEntities().addEntity(mediaPlayerEntity);
