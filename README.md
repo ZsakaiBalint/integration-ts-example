@@ -63,7 +63,7 @@ Go to "Integrations & docks" to see added integrations. Initially, only the "Hom
 - **Postman** Download [Postman](https://www.postman.com) and import the [Remote Two Core-API Postman collection](https://github.com/unfoldedcircle/core-api/blob/main/core-api/rest/remote-core_rest-api.postman_collection.json) to access all necessary requests. 
 
 ## Authentication
-To log in with admin rights, use /auth/login with these credentials:
+To log in with admin rights, use `/auth/login` with these credentials:
 
 ```
 {
@@ -75,7 +75,7 @@ To log in with admin rights, use /auth/login with these credentials:
 ![login](https://github.com/user-attachments/assets/33e97187-8a28-4286-b6c3-d8c5afd793bd)
 
 
-Adjust the `registerIntegrationDriver` request to fit your driver and network settings. Use a reachable IP address in `driver_url`:
+Adjust the `/integrations/driver/registerIntegrationDriver` request to fit your driver and network settings. Use a reachable IP address in "driver_url":
 
 ```
 {
@@ -96,7 +96,7 @@ Adjust the `registerIntegrationDriver` request to fit your driver and network se
 }
 ```
 
-Replace `#.###` in the driver_url with your IP, which you can find by running:
+Replace `#.###` in the "driver_url" with your IP, which you can find by running:
 
 ```
 ipconfig /all
