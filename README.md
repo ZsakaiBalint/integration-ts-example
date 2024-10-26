@@ -5,33 +5,78 @@
 This guide demonstrates the basic usage of the [Node.js API wrapper for the UC Integration API](https://github.com/unfoldedcircle/integration-node-library) to develop custom drivers for [Unfolded Circle Remote Devices](https://www.unfoldedcircle.com). In this example, we will create three sample entities: a light, a media player, and a button.
 
 ## Table of Contents
-1. [Getting Started](#getting-started)
+1. [Prerequisites](#prerequisites)
 2. [Authentication](#authentication)
 3. [Basic Usage](#basic-usage)
-4. [Advanced Features](#advanced-features)
-5. [Error Handling](#error-handling)
-6. [Examples and Use Cases](#examples-and-use-cases)
-7. [Testing and Debugging](#testing-and-debugging)
-8. [Best Practices](#best-practices)
-9. [Additional Resources](#additional-resources)
-10. [FAQ](#faq)
 
-## Getting Started
+## Prerequisites
 
-Prerequisites:
+Ensure the following are installed:
 
 - **Node.js (version 20.16.0 or higher)**: Ensure Node.js is installed on your machine. You can download it from [nodejs.org](https://nodejs.org/).
 
-- **UC Integration API**: This example includes the UC Integration API as a dependency. If you plan to develop a driver in a separate project, you can install the API with the following command: ```npm install uc-integration-api```
+- **UC Integration API**: This example includes the UC Integration API as a dependency. If you plan to develop a driver in a separate project,
+you can install the API with the following command:
 
-- **Docker Desktop**: Download [Docker Desktop](https://www.docker.com/products/docker-desktop) from the official website. After downloading, install it and start the application. You should see something like this: <docker-desktop.png> Notice the "Engine Running" message in the bottom left corner.
+```
+npm install uc-integration-api
+```
 
-- **Remote-Core Simulator** To test wether the developed driver works, we need to download the [Remote-Core Simulator](https://github.com/unfoldedcircle/core-simulator). After downloading, you need to navigate into the /docker folder ```cd path/to/core-simulator/docker```. In this folder, you need to call the following command: ```docker compose-up```. You should see the following messages in the terminal: <docker_compose-up.png> . After starting docker image, open localhost:8080 in your favourite browser (you can paste ```localhost:8080``` in the URL field). After that, you should see Remote Two Core Simulator. <remote-two.png> Click on the "Web-Configurator" link. You should see the following page: <configurator_1.png> Enter `1234` then click on the Unlock button (you might click on the leftmost empty square to start typing). You should see something like this: <integrations_n_docks.png>. Click on the topmost button `Integrations & docks`. Here, you can see the added integrations, which now only contains the Home Assistant Integration. <integrations_n_docks_2-png> Our goal is to have the Node.js example driver show up here!
+- **Docker Desktop**: Download [Docker Desktop](https://www.docker.com/products/docker-desktop) and install it. Start Docker, and you should see "Engine Running" in the bottom left
+corner of the window.
 
-- **Postman** We need to install [Postman](https://www.postman.com) from the official website. Download and install it. You also need to login/register a new account. You can download all REST requests of the Core-API  using this [Postman collection](https://github.com/unfoldedcircle/core-api/blob/main/core-api/rest/remote-core_rest-api.postman_collection.json) After downloading this file, you need to import it. Click on Collections > Import > then drag & drop the json file there. After this step, you should see the new collection, the Remote Two Core-API in your collections. This collection holds all necessary requests. 
+![docker-desktop](https://github.com/user-attachments/assets/e7d8ecb6-dfc4-47f8-8a75-f0d6f7d22484)
+
+- **Remote-Core Simulator**: Download the [Remote-Core Simulator](https://github.com/unfoldedcircle/core-simulator). Navigate to `/docker`:
+
+```
+cd path/to/core-simulator/docker
+```
+
+Run:
+
+```
+docker compose-up
+```
+
+You should see messages similar to this in the terminal:
+
+![docker_compose-up](https://github.com/user-attachments/assets/5e3dc24f-dbe2-4347-bd57-ab78e23bc50b)
+
+
+Open `localhost:8080` in a browser to see the Remote Two Core Simulator:
+
+![remote-two](https://github.com/user-attachments/assets/c433a11f-7f23-4e55-963e-1f10f28808dd)
+
+Select "Web-Configurator". Enter `1234` then click "Unlock":
+
+![configurator_1](https://github.com/user-attachments/assets/710e90fc-8ade-4b89-804e-2810167986ee)
+
+After unlocking the Web-Configurator, you are greeted with the following page:
+
+![integrations_n_docks](https://github.com/user-attachments/assets/be867bcd-2736-4c08-a4a3-b12d53cfbb8c)
+
+Go to "Integrations & docks" to see added integrations. Initially, only the "Home Assistant" integration should appear:
+
+![integrations_n_docks_2](https://github.com/user-attachments/assets/efa91927-9b14-41c0-9086-6526380adb0a)
+
+- **Postman** Download [Postman](https://www.postman.com) and import the [Remote Two Core-API Postman collection](https://github.com/unfoldedcircle/core-api/blob/main/core-api/rest/remote-core_rest-api.postman_collection.json) to access all necessary requests. 
 
 ## Authentication
-You need to login as a web-configurator to get admin rights. This user account is allowed to do everything. Under /auth/login, change the credentials <login.png> "username" : "web-configurator", "password" : "1234"  You need to make one more adjustment. Under integrations, driver you should have a `registerIntegrationDriver` request: The payload needs to be changed to your driver and network setting. Best use an IP address to avoid name resolution issue within Docker. This needs to be an IP address which is reachable from within Docker. Usually the IP address of your network adapter which is connected to your network will work. Change the request body to:
+To log in with admin rights, use /auth/login with these credentials:
+
+```
+{
+  "username" : "web-configurator", 
+  "password" : "1234"
+}
+```
+
+![login](https://github.com/user-attachments/assets/33e97187-8a28-4286-b6c3-d8c5afd793bd)
+
+
+Adjust the `registerIntegrationDriver` request to fit your driver and network settings. Use a reachable IP address in `driver_url`:
+
 ```
 {
   "driver_id": "simulated_light",
@@ -50,10 +95,40 @@ You need to login as a web-configurator to get admin rights. This user account i
   "release_date": "2023-03-03"
 }
 ```
-Notice the hasmarks in the "driver_url" field. You need to change it to your IP address. You can get your IP address by calling ```ipconfig/all``` on Windows.
+
+Replace `#.###` in the driver_url with your IP, which you can find by running:
+
+```
+ipconfig /all
+```
 
 ## Basic Usage
-Now we should test if our driver is working. In this example, we start the /src/light.js file.
-If everything is working correctly, you should see the following messages in the terminal window: <terminal_1.png>. Let this terminal window running. Open Postman, and open /integrations/driver/registerIntegrationDriver request <register_driver.png>. Click on send. 
-If everything worked correctly in the terminal window, you should see a new message (written in pink color): <terminal_2.png>. You should also see a new driver called "My Driver" in the Web-Configurator: <my_driver.png>. Click on it, then click Next, Select all entities, then click next <add_entities.png>, finally click on done. That's it! In the terminal window, you should
-see the new configured entities: <terminal_final.png>
+
+Start the driver with `/src/light.js`. The terminal should show messages similar to:
+
+![terminal_1](https://github.com/user-attachments/assets/bd43948f-1b98-4131-adfc-d97e4b37ea03)
+
+
+Leave this terminal running. In Postman, send the `/integrations/driver/registerIntegrationDriver` request:
+
+![register_driver](https://github.com/user-attachments/assets/de75dba2-c1a9-4bb5-a8b0-4264319738f8)
+
+If successful, you’ll see a new message in the terminal (in pink): 
+
+![terminal_2](https://github.com/user-attachments/assets/c6ab58d7-d422-47c4-8307-e3df02f9a998)
+
+
+"My Driver" should now appear in the Web-Configurator:
+
+![my_driver](https://github.com/user-attachments/assets/c6d291df-4dd3-439c-be9a-becefaab8d41)
+
+
+Click on it, select all entities, and finish setup.
+
+![add_entities](https://github.com/user-attachments/assets/4e62819d-7fe1-47ad-86e5-9bfa534b30af)
+
+
+The configured entities should appear in the terminal:
+
+![terminal_final](https://github.com/user-attachments/assets/f11fb73a-eb0f-4164-a4d5-08a353e16024)
+
