@@ -5,6 +5,7 @@
 This guide demonstrates the basic usage of the [Node.js API wrapper for the UC Integration API](https://github.com/unfoldedcircle/integration-node-library) to develop custom drivers for [Unfolded Circle Remote Devices](https://www.unfoldedcircle.com). In this example, we will create three sample entities: a light, a media player, and a button.
 
 ## Table of Contents
+
 1. [Prerequisites](#prerequisites)
 2. [Authentication](#authentication)
 3. [Basic Usage](#basic-usage)
@@ -16,16 +17,14 @@ Ensure the following are installed:
 - **Node.js (version 20.16.0 or higher)**: Ensure Node.js is installed on your machine. You can download it from [nodejs.org](https://nodejs.org/).
 
 - **UC Integration API**: This example includes the UC Integration API as a dependency. If you plan to develop a driver in a separate project,
-you can install the API with the following command:
+  you can install the API with the following command:
 
 ```
 npm install uc-integration-api
 ```
 
-- **Docker Desktop**: Download [Docker Desktop](https://www.docker.com/products/docker-desktop) and install it. Start Docker, and you should see "Engine Running" in the bottom left
-corner of the window.
-
-![docker-desktop](https://github.com/user-attachments/assets/e7d8ecb6-dfc4-47f8-8a75-f0d6f7d22484)
+- **Container runtime**: the [Remote-Core Simulator](https://github.com/unfoldedcircle/core-simulator) is distributed as a Docker image.
+  This requires a container runtime on your machine.
 
 - **Remote-Core Simulator**: Download the [Remote-Core Simulator](https://github.com/unfoldedcircle/core-simulator). Navigate to `/docker`:
 
@@ -36,19 +35,18 @@ cd path/to/core-simulator/docker
 Run:
 
 ```
-docker compose-up
+docker compose up
 ```
 
 You should see messages similar to this in the terminal:
 
 ![docker_compose-up](https://github.com/user-attachments/assets/5e3dc24f-dbe2-4347-bd57-ab78e23bc50b)
 
-
 Open `localhost:8080` in a browser to see the Remote Two Core Simulator:
 
 ![remote-two](https://github.com/user-attachments/assets/c433a11f-7f23-4e55-963e-1f10f28808dd)
 
-Select "Web-Configurator". Enter `1234` then click "Unlock":
+Select "Web-Configurator". Enter the pin, then click "Unlock". See [Simulator documentation](https://github.com/unfoldedcircle/core-simulator?tab=readme-ov-file#user-accounts-1) for the pin.
 
 ![configurator_1](https://github.com/user-attachments/assets/710e90fc-8ade-4b89-804e-2810167986ee)
 
@@ -60,20 +58,20 @@ Go to "Integrations & docks" to see added integrations. Initially, only the "Hom
 
 ![integrations_n_docks_2](https://github.com/user-attachments/assets/efa91927-9b14-41c0-9086-6526380adb0a)
 
-- **Postman** Download [Postman](https://www.postman.com) and import the [Remote Two Core-API Postman collection](https://github.com/unfoldedcircle/core-api/blob/main/core-api/rest/remote-core_rest-api.postman_collection.json) to access all necessary requests. 
+- **Postman** Download [Postman](https://www.postman.com) and import the [Remote Two Core-API Postman collection](https://github.com/unfoldedcircle/core-api/blob/main/core-api/rest/remote-core_rest-api.postman_collection.json) to access all necessary requests.
 
 ## Authentication
+
 To log in with admin rights, use `/auth/login` with these credentials:
 
 ```
 {
-  "username" : "web-configurator", 
+  "username" : "web-configurator",
   "password" : "1234"
 }
 ```
 
 ![login](https://github.com/user-attachments/assets/33e97187-8a28-4286-b6c3-d8c5afd793bd)
-
 
 Adjust the `/integrations/driver/registerIntegrationDriver` request to fit your driver and network settings. Use a reachable IP address in "driver_url":
 
@@ -104,31 +102,53 @@ ipconfig /all
 
 ## Basic Usage
 
-Start the driver with `/src/light.js`. The terminal should show messages similar to:
+This simple example loads the driver configuration file [src/light-driver.json](src/light-driver.json) from the working directory.
+After building the project, change into the destination folder and start the driver.
+
+Logging in the uc-integration-api is directed to the [debug](https://www.npmjs.com/package/debug) module.
+To let the UC API wrapper output anything, run your integration driver with the `DEBUG` environment variable set like `DEBUG=ucapi:*`.
+
+See [API wrapper logging](https://github.com/unfoldedcircle/integration-node-library?tab=readme-ov-file#logging) for more information.
+
+Install dependencies and development tools (like tsc TypeScript compiler):
+
+```shell
+npm install
+```
+
+Compile TypeScript:
+
+```shell
+npm run build
+```
+
+Start the driver:
+
+```shell
+cd dist/src
+DEBUG=ucapi:* node light.js
+```
+
+The terminal should show messages similar to:
 
 ![terminal_1](https://github.com/user-attachments/assets/bd43948f-1b98-4131-adfc-d97e4b37ea03)
-
 
 Leave this terminal running. In Postman, send the `/integrations/driver/registerIntegrationDriver` request:
 
 ![register_driver](https://github.com/user-attachments/assets/de75dba2-c1a9-4bb5-a8b0-4264319738f8)
 
-If successful, you’ll see a new message in the terminal (in pink): 
+If successful, you’ll see a new message in the terminal (in pink):
 
 ![terminal_2](https://github.com/user-attachments/assets/c6ab58d7-d422-47c4-8307-e3df02f9a998)
-
 
 "My Driver" should now appear in the Web-Configurator:
 
 ![my_driver](https://github.com/user-attachments/assets/c6d291df-4dd3-439c-be9a-becefaab8d41)
 
-
 Click on it, select all entities, and finish setup.
 
 ![add_entities](https://github.com/user-attachments/assets/4e62819d-7fe1-47ad-86e5-9bfa534b30af)
 
-
 The configured entities should appear in the terminal:
 
 ![terminal_final](https://github.com/user-attachments/assets/f11fb73a-eb0f-4164-a4d5-08a353e16024)
-

@@ -6,5 +6,5 @@ test("Check if driver_url is not defined, so it can be overwritten", (t) => {
 
   const driver_url = uc.getDriverUrl();
 
-  return t.is(typeof driver_url, "undefined");
+  t.is(driver_url, undefined);
 });

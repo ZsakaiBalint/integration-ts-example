@@ -118,10 +118,10 @@ const lightCmdHandler: CommandHandler = async function (entity, cmdId, params): 
 
 // create a light entity
 // normally you'd create this where your driver exposed the available entities
-// The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
+// The entity name can either be string (which will be mapped to english), or an object with multiple language entries.
 const name = {
-  ["de"]: "Mein Lieblingslicht",
-  ["en"]: "My favorite light"
+  de: "Mein Lieblingslicht",
+  en: "My favorite light"
 };
 
 const lightEntity = new uc.entities.Light("my_unique_light_id", name, {
